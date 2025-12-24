@@ -1,6 +1,8 @@
 
 -- Pharmaceutical Manufacturing Schema
--- Locked Version (Including drug_formulations)
+CREATE DATABASE IF NOT EXISTS pharma_db;
+
+USE pharma_db;
 
 CREATE TABLE customers (
     customer_id INT PRIMARY KEY,
