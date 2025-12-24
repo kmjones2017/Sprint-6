@@ -1,0 +1,7 @@
+customer_id,name,customer_type,email,phone,address
+1,City General Hospital,Hospital,contact@citygen.org,555-1111,123 Health St
+2,Sunrise Pharmacy,Pharmacy,info@sunrisepharm.com,555-2222,45 Market Ave
+3,Westside Clinic,Clinic,admin@westsideclinic.org,555-3333,78 Wellness Blvd
+4,Northview Medical Center,Hospital,info@northviewmed.org,555-4444,90 Care Rd
+5,GreenCross Pharmacy,Pharmacy,support@greencrossrx.com,555-5555,12 Elm St
+6,Lakeside Family Clinic,Clinic,contact@lakesideclinic.org,555-6666,200 Lake Ave
