@@ -1,0 +1,6 @@
+material_id,material_name,unit_of_measure,supplier_id,cost_per_unit
+1,Acetaminophen,kg,1,120.00
+2,Lactose Monohydrate,kg,2,40.00
+3,Magnesium Stearate,kg,3,75.00
+4,Ibuprofen API,kg,4,180.00
+5,Microcrystalline Cellulose,kg,5,55.00
