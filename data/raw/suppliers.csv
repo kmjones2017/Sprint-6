@@ -1,0 +1,6 @@
+supplier_id,supplier_name,material_type,contact_email,country
+1,ChemSource Ltd,Active Ingredient,sales@chemsource.com,USA
+2,BioRaw Corp,Excipient,info@bioraw.com,Germany
+3,MedChem Partners,Stabilizer,contact@medchem.com,India
+4,AsiaPharm Supplies,Active Ingredient,orders@asiapharm.com,China
+5,EuroExcipients GmbH,Excipient,sales@euroexcipients.de,France
