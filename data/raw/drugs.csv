@@ -1,0 +1,5 @@
+drug_id,drug_name,dosage_form,strength_mg,price
+1,PainRelief Plus,Tablet,500,9.99
+2,FeverDown,Tablet,250,6.49
+3,IbuFast,Tablet,400,11.99
+4,ColdEase,Capsule,500,14.50
