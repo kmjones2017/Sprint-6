@@ -32,7 +32,7 @@ CREATE TABLE drugs (
     drug_id INT PRIMARY KEY,
     drug_name VARCHAR(150) NOT NULL,
     dosage_form VARCHAR(50),
-    strength_mg VARCHAR(50),
+    strength_mg INT,
     price DECIMAL(10, 2) NOT NULL
 );
 
