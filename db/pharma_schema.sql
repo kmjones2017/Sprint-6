@@ -1,10 +1,11 @@
+DROP DATABASE IF EXISTS pharma_db;
 
 -- Pharmaceutical Manufacturing Schema
 CREATE DATABASE IF NOT EXISTS pharma_db;
 
 USE pharma_db;
 
-CREATE TABLE customers (
+CREATE TABLE IF NOT EXISTS customers (
     customer_id INT PRIMARY KEY,
     name VARCHAR(150) NOT NULL,
     customer_type ENUM('Hospital', 'Pharmacy', 'Clinic') NOT NULL,
@@ -13,7 +14,7 @@ CREATE TABLE customers (
     address VARCHAR(255)
 );
 
-CREATE TABLE suppliers (
+CREATE TABLE IF NOT EXISTS suppliers (
     supplier_id INT PRIMARY KEY,
     supplier_name VARCHAR(150) NOT NULL,
     material_type VARCHAR(100),
@@ -21,7 +22,7 @@ CREATE TABLE suppliers (
     country VARCHAR(100)
 );
 
-CREATE TABLE raw_materials (
+CREATE TABLE IF NOT EXISTS raw_materials (
     material_id INT PRIMARY KEY,
     material_name VARCHAR(150) NOT NULL,
     unit_of_measure VARCHAR(50),
@@ -30,7 +31,7 @@ CREATE TABLE raw_materials (
     FOREIGN KEY (supplier_id) REFERENCES suppliers(supplier_id)
 );
 
-CREATE TABLE drugs (
+CREATE TABLE IF NOT EXISTS drugs (
     drug_id INT PRIMARY KEY,
     drug_name VARCHAR(150) NOT NULL,
     dosage_form VARCHAR(50),
@@ -38,7 +39,7 @@ CREATE TABLE drugs (
     price DECIMAL(10, 2) NOT NULL
 );
 
-CREATE TABLE drug_formulations (
+CREATE TABLE IF NOT EXISTS drug_formulations (
     formulation_id INT PRIMARY KEY,
     drug_id INT NOT NULL,
     material_id INT NOT NULL,
@@ -47,7 +48,7 @@ CREATE TABLE drug_formulations (
     FOREIGN KEY (material_id) REFERENCES raw_materials(material_id)
 );
 
-CREATE TABLE drug_batches (
+CREATE TABLE IF NOT EXISTS drug_batches (
     batch_id INT PRIMARY KEY,
     drug_id INT NOT NULL,
     batch_number VARCHAR(100) UNIQUE NOT NULL,
@@ -57,14 +58,14 @@ CREATE TABLE drug_batches (
     FOREIGN KEY (drug_id) REFERENCES drugs(drug_id)
 );
 
-CREATE TABLE orders (
+CREATE TABLE IF NOT EXISTS orders (
     order_id INT PRIMARY KEY,
     customer_id INT NOT NULL,
     order_date DATE NOT NULL,
     FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
 );
 
-CREATE TABLE order_items (
+CREATE TABLE IF NOT EXISTS order_items (
     order_item_id INT PRIMARY KEY,
     order_id INT NOT NULL,
     batch_id INT NOT NULL,
