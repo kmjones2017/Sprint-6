@@ -1,73 +1,65 @@
-import mysql.connector
+# tasks/ingestion.py
+# create .env file (example available in the repo root folder)
+# pip install python-dotenv
+
+from prefect import task
 import pandas as pd
-from typing import Dict
-from config import db_config
+import mysql.connector
+import os
+from dotenv import load_dotenv
 
-# --- Utility functions ---
+load_dotenv()
 
-def get_table_columns(cursor, table_name: str) -> set:
-    cursor.execute(f"DESCRIBE {table_name}")
-    return {row[0] for row in cursor.fetchall()}
+db_config = {
+    "host": os.getenv("DB_HOST"),
+    "user": os.getenv("DB_USER"),
+    "password": os.getenv("DB_PASSWORD"),
+    "database": os.getenv("DB_NAME")
+}
 
-
-def validate_schema(df: pd.DataFrame, table_name: str, cursor) -> None:
+@task
+def ingest_csv_to_mysql(file_path: str, table: str):
     """
-    Validates that the DataFrame columns match the target MySQL table schema.
-    Raises ValueError if there is a mismatch.
+    Ingests a CSV into a MySQL table, validates schema, logs row counts, 
+    and handles missing/extra columns gracefully.
     """
-    table_columns = get_table_columns(cursor, table_name)
-    df_columns = set(df.columns)
+    # Load CSV
+    df = pd.read_csv(file_path)
+    row_count = len(df)
+    print(f"Loaded {row_count} rows from {file_path}")
 
-    missing = table_columns - df_columns
-    extra = df_columns - table_columns
-
-    if missing:
-        raise ValueError(f"Missing columns for table '{table_name}': {missing}")
-    if extra:
-        raise ValueError(f"Unexpected columns for table '{table_name}': {extra}")
-
-
-# --- Core ingestion task ---
-
-def ingest_csv_to_mysql(csv_path: str, table_name: str) -> int:
-    """
-    Reads a CSV file, validates schema, inserts data into MySQL.
-    Returns number of rows inserted.
-    """
-    df = pd.read_csv(csv_path)
-
+    # Connect to MySQL
     connection = mysql.connector.connect(**db_config)
     cursor = connection.cursor()
 
-    # Schema validation
-    validate_schema(df, table_name, cursor)
+    # Get DB columns
+    cursor.execute(f"DESCRIBE {table}")
+    db_columns = [row[0] for row in cursor.fetchall()]
 
+    # Check for missing and extra columns
+    missing_cols = set(db_columns) - set(df.columns)
+    extra_cols = set(df.columns) - set(db_columns)
+
+    if missing_cols:
+        raise ValueError(f"Missing required columns for table '{table}': {missing_cols}")
+    
+    if extra_cols:
+        print(f"Warning: Extra columns in CSV ignored: {extra_cols}")
+        # Keep only columns that exist in DB
+        df = df[[col for col in df.columns if col in db_columns]]
+
+    # Prepare insert statement
     cols = ",".join(df.columns)
     placeholders = ",".join(["%s"] * len(df.columns))
-    sql = f"INSERT INTO {table_name} ({cols}) VALUES ({placeholders})"
+    sql = f"INSERT INTO {table} ({cols}) VALUES ({placeholders})"
 
-    data = [tuple(row) for row in df.itertuples(index=False, name=None)]
+    # Insert rows
+    for _, row in df.iterrows():
+        cursor.execute(sql, tuple(row))
 
-    cursor.executemany(sql, data)
     connection.commit()
-
-    row_count = cursor.rowcount
-
     cursor.close()
     connection.close()
 
-    print(f"Inserted {row_count} rows into {table_name}")
+    print(f"Inserted {row_count} rows into {table}")
     return row_count
-
-
-# --- Example execution order (FK-safe) ---
-if __name__ == "__main__":
-    # replace the first parameter's file path in each of the following lines with the local file path of each CSV on your computer
-    ingest_csv_to_mysql(r"C:\Users\kmjon\Documents\ITExpertSystem\Internship\Sprint_6\customers.csv", "customers")
-    ingest_csv_to_mysql(r"C:\Users\kmjon\Documents\ITExpertSystem\Internship\Sprint_6\suppliers.csv", "suppliers")
-    ingest_csv_to_mysql(r"C:\Users\kmjon\Documents\ITExpertSystem\Internship\Sprint_6\raw_materials.csv", "raw_materials")
-    ingest_csv_to_mysql(r"C:\Users\kmjon\Documents\ITExpertSystem\Internship\Sprint_6\drugs.csv", "drugs")
-    ingest_csv_to_mysql(r"C:\Users\kmjon\Documents\ITExpertSystem\Internship\Sprint_6\drug_formulations.csv", "drug_formulations")
-    ingest_csv_to_mysql(r"C:\Users\kmjon\Documents\ITExpertSystem\Internship\Sprint_6\drug_batches.csv", "drug_batches")
-    ingest_csv_to_mysql(r"C:\Users\kmjon\Documents\ITExpertSystem\Internship\Sprint_6\orders.csv", "orders")
-    ingest_csv_to_mysql(r"C:\Users\kmjon\Documents\ITExpertSystem\Internship\Sprint_6\order_items.csv", "order_items")
